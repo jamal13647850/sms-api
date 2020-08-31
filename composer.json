@@ -1,0 +1,18 @@
+{
+    "name": "jamal13647850/smsAPI",
+    "description": "A sms Api oop",
+    "keywords": ["elanak", "sms", "api"],
+    "require": {
+
+    },
+    "license": "MIT",
+    "authors": [{
+        "name": "Sayyed Jamal Ghasemi",
+        "email": "jamal13647850@gmail.com"
+    }],
+    "autoload": {
+        "psr-4": {
+            "jamal13647850\\smsapi\\": "src/"
+        }
+    }
+}
