@@ -4,7 +4,7 @@ declare (strict_types = 1);
 namespace jamal13647850\smsapi;
 class SMS{
     protected $gateway;
-    public function setGateway(Gateway $gateway){
+    public function __construct(Gateway $gateway){
         $this->gateway = $gateway;
     }
 
