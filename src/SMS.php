@@ -8,8 +8,8 @@ class SMS{
         $this->gateway = $gateway;
     }
 
-    public function sendSMS(string $to,string $message){
-        $this->gateway->sendSMS($to,$message);
+    public function sendSMS(string $to,string $message):array{
+        return $this->gateway->sendSMS($to,$message);
     }
     public function sendOneSMSToMultiNumber(array $to,string $message){
         $this->gateway->sendOneSMSToMultiNumber($to,$message);
