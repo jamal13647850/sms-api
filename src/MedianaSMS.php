@@ -81,7 +81,7 @@ class MedianaSMS implements Gateway
         $res_data = $response2[1];
 
 
-        return $res_data;
+        return intval($res_data);
     }
     public function addContact(array $contactInfo)
     {
