@@ -24,14 +24,14 @@ class MedianaSMS implements Gateway
 
 
 
-    public function sendSMS(string $to, string $message): array
+    public function sendSMS(string|array $to, string $message): array
     {
         $param = [
             'uname' => $this->uname,
             'pass' => $this->pass,
             'from' => $this->from,
             'message' => $message,
-            'to' => json_encode([$to]),
+            'to' => is_array($to)?json_encode($to):json_encode([$to]),
             'op' => 'send'
         ];
 
