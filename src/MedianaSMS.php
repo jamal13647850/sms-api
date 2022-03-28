@@ -47,7 +47,11 @@ class MedianaSMS implements Gateway
 
 
 
-        return [$res_code, $res_data];
+        return [
+            'status'=>$res_code==0?true:false,
+            'resultCode'=>$res_code,        
+            'resultData'=>$res_data        
+        ];
     }
     public function sendOneSMSToMultiNumber(array $to, string $message)
     {
