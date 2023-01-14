@@ -23,7 +23,15 @@ class MedianaSMS implements Gateway
     }
 
 
+    
 
+    /**
+     * sendSMS
+     *
+     * @param  mixed $to
+     * @param  mixed $message
+     * @return array
+     */
     public function sendSMS(string|array $to, string $message): array
     {
         $param = [
