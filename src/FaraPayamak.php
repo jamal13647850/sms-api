@@ -56,7 +56,7 @@ class FaraPayamak implements Gateway
         $response = curl_exec($curl);
 
         curl_close($curl);
-        return json_decode($response) ;
+        return (array)json_decode($response) ;
     }
     public function sendOneSMSToMultiNumber(array $to, string $message)
     {
