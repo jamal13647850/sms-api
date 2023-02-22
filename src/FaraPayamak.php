@@ -95,7 +95,7 @@ class FaraPayamak implements Gateway
         curl_close($curl);
         $results= (array)json_decode($response);
 
-        return $results['RetStatus']==1?$results['Value']:0;
+        return (int)($results['RetStatus']==1?$results['Value']:0);
     }
     public function addContact(array $contactInfo)
     {
