@@ -5,7 +5,7 @@ namespace jamal13647850\smsapi;
 
 interface Gateway{
     public function sendSMS(string $to,string $message):array;
-    public function sendSMSByPattern(string $to, string $message):array;
+    public function sendSMSByPattern(string $to, string $message,int $bodyId):array;
     public function sendOneSMSToMultiNumber(array $to,string $message);
     public function sendMultiSMSToMultiNumber(array $msNum);
     public function ReciveSMS();

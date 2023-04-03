@@ -58,7 +58,7 @@ class Payamito implements Gateway
         curl_close($curl);
         return (array)json_decode($response);
     }
-    public function sendSMSByPattern(string $to, string $message): array
+    public function sendSMSByPattern(string $to, string $message,int $bodyId): array
     {
        
         $curl = curl_init();
@@ -72,7 +72,7 @@ class Payamito implements Gateway
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'username=' . $this->uname . '&password=' . $this->pass . '&to=' . $to . '&text=' . $message,
+            CURLOPT_POSTFIELDS => 'username=' . $this->uname . '&password=' . $this->pass . '&to=' . $to . '&text=' . $message . '&bodyId=' . $bodyId,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/x-www-form-urlencoded'
             ),
