@@ -11,6 +11,10 @@ class SMS{
     public function sendSMS(string|array $to,string $message):array{
         return $this->gateway->sendSMS($to,$message);
     }
+
+    public function sendSMSByPattern(string $to,string $message):array{
+        return $this->gateway->sendSMSByPattern($to,$message);
+    }
     public function sendOneSMSToMultiNumber(array $to,string $message){
         $this->gateway->sendOneSMSToMultiNumber($to,$message);
     }

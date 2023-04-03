@@ -39,7 +39,7 @@ class Payamito implements Gateway
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->url.'SendSMS',
+            CURLOPT_URL => $this->url . 'SendSMS',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -48,6 +48,31 @@ class Payamito implements Gateway
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => 'username=' . $this->uname . '&password=' . $this->pass . '&to=' . $to . '&from=' . $this->from . '&text=' . $message,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/x-www-form-urlencoded'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return (array)json_decode($response);
+    }
+    public function sendSMSByPattern(string $to, string $message): array
+    {
+       
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->url . 'BaseServiceNumber',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => 'username=' . $this->uname . '&password=' . $this->pass . '&to=' . $to . '&text=' . $message,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/x-www-form-urlencoded'
             ),
@@ -76,7 +101,7 @@ class Payamito implements Gateway
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->url.'GetCredit',
+            CURLOPT_URL => $this->url . 'GetCredit',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -84,7 +109,7 @@ class Payamito implements Gateway
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'username=' . $this->uname . '&password=' . $this->pass ,
+            CURLOPT_POSTFIELDS => 'username=' . $this->uname . '&password=' . $this->pass,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/x-www-form-urlencoded'
             ),
@@ -93,9 +118,9 @@ class Payamito implements Gateway
         $response = curl_exec($curl);
 
         curl_close($curl);
-        $results= (array)json_decode($response);
+        $results = (array)json_decode($response);
 
-        return (int)($results['RetStatus']==1?$results['Value']:0);
+        return (int)($results['RetStatus'] == 1 ? $results['Value'] : 0);
     }
     public function addContact(array $contactInfo)
     {
