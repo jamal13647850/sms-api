@@ -60,7 +60,7 @@ class SMSir implements Gateway
 
         return (array)json_decode($response);
     }
-    public function sendOneSMSToMultiNumber(array $to, string $message, $sendDateTime)
+    public function sendOneSMSToMultiNumber(array $to, string $message, $sendDateTime = null)
     {
         $this->url .= 'bulk';
 
@@ -92,7 +92,7 @@ class SMSir implements Gateway
     public function sendMultiSMSToMultiNumber(array $msNum)
     {
     }
-    public function sendSMSByPattern(string $to,int $bodyId,array $parameters): array
+    public function sendSMSByPattern(string $to, string $message='',int $bodyId,array $parameters=null): array
     {
 
         $this->url .= 'verify';
