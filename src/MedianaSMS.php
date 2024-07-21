@@ -98,4 +98,9 @@ class MedianaSMS implements Gateway
     public function addContact(array $contactInfo)
     {
     }
+
+    public function sendSMSByPattern(string $to, string $message, int $bodyId): array
+    {
+        return [];
+    }
 }
