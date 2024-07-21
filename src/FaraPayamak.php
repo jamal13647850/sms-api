@@ -58,7 +58,7 @@ class FaraPayamak implements Gateway
         curl_close($curl);
         return (array)json_decode($response);
     }
-    public function sendSMSByPattern(string $to, string $message,int $bodyId): array
+    public function sendSMSByPattern(string $to, string $message,int $bodyId,array $parameters=[]): array
     {
        
         $curl = curl_init();

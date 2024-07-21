@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace jamal13647850\smsapi;
 
-//defined('ABSPATH') || exit();
+defined('ABSPATH') || exit();
 
 
 class SMSir implements Gateway
@@ -92,7 +92,7 @@ class SMSir implements Gateway
     public function sendMultiSMSToMultiNumber(array $msNum)
     {
     }
-    public function sendSMSByPattern(string $to, string $message='',int $bodyId,array $parameters=null): array
+    public function sendSMSByPattern(string $to, string $message='',int $bodyId,array $parameters): array
     {
 
         $this->url .= 'verify';

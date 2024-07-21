@@ -99,7 +99,7 @@ class MedianaSMS implements Gateway
     {
     }
 
-    public function sendSMSByPattern(string $to, string $message, int $bodyId): array
+    public function sendSMSByPattern(string $to, string $message, int $bodyId,array $parameters): array
     {
         return [];
     }
