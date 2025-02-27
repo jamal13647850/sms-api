@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace jamal13647850\smsapi;
 
-defined('ABSPATH') || exit();
+
 
 
 class MedianaSMS implements Gateway
@@ -16,10 +16,12 @@ class MedianaSMS implements Gateway
 
     public function __construct(string $uname, string $pass, string $from, string $url = 'https://ippanel.com/services.jspd')
     {
+       
         $this->url = $url;
         $this->uname = $uname;
         $this->pass = $pass;
         $this->from = $from;
+        
     }
 
 

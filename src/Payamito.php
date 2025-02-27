@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace jamal13647850\smsapi;
 
-defined('ABSPATH') || exit();
+
 
 
 class Payamito implements Gateway

@@ -1,18 +1,32 @@
 {
     "name": "jamal13647850/sms-api",
-    "description": "A sms Api oop",
-    "keywords": ["elanak", "sms", "api"],
-    "require": {
-
-    },
+    "description": "A unified PHP library for sending SMS messages through various Iranian SMS providers",
+    "type": "library",
+    "keywords": [
+        "sms", 
+        "api", 
+        "farazsms", 
+        "smsir", 
+        "payamito", 
+        "farapayamak", 
+        "elanak", 
+        "medianasms"
+    ],
     "license": "MIT",
-    "authors": [{
-        "name": "Sayyed Jamal Ghasemi",
-        "email": "jamal13647850@gmail.com"
-    }],
+    "authors": [
+        {
+            "name": "Sayyed Jamal Ghasemi",
+            "email": "jamal13647850@gmail.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "jamal13647850\\smsapi\\": "src/"
         }
+    },
+    "require": {
+        "php": ">=8.0",
+        "ext-curl": "*",
+        "ext-json": "*"
     }
 }
