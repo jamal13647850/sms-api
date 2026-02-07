@@ -1,134 +1,270 @@
 <?php
-
 declare(strict_types=1);
 
 namespace jamal13647850\smsapi;
 
-
-
-
-class SMSir implements Gateway
+/**
+ * SMS.ir Gateway Implementation
+ * 
+ * Provides integration with SMS.ir REST API v1.
+ * 
+ * @author Sayyed Jamal Ghasemi
+ * @see https://api.sms.ir
+ */
+class SMSir extends AbstractGateway
 {
-    private string $url;
-    private string $apikey;
+    private const DEFAULT_URL = 'https://api.sms.ir/v1/send/';
+
+    private string $baseUrl;
+    private string $apiKey;
     private string $from;
 
-    public function __construct(string $apikey, string $from, string $url = 'https://api.sms.ir/v1/send/')
-    {
-        $this->url = $url;
-        $this->apikey = $apikey;
-
+    /**
+     * Constructor
+     *
+     * @param string $apiKey API key for authentication
+     * @param string $from Sender line number
+     * @param string|null $url Optional API base URL override
+     */
+    public function __construct(
+        string $apiKey,
+        string $from,
+        ?string $url = null
+    ) {
+        $this->baseUrl = $url ?? self::DEFAULT_URL;
+        $this->apiKey = $apiKey;
         $this->from = $from;
     }
 
+    /**
+     * Send SMS to single or multiple recipients
+     *
+     * @param string|array $to Single phone number or array of numbers
+     * @param string $message Message content
+     * @return array Response with status, resultCode, and resultData
+     */
+    public function sendSMS(string|array $to, string $message): array
+    {
+        $url = $this->baseUrl . 'bulk';
+        
+        $params = [
+            'lineNumber' => $this->from,
+            'messageText' => $message,
+            'mobiles' => $this->normalizePhoneNumbers($to),
+        ];
 
-
+        return $this->executeJsonRequest($url, $params);
+    }
 
     /**
-     * sendSMS
+     * Send same SMS to multiple numbers
      *
-     * @param  mixed $to
-     * @param  mixed $message
-     * @return array
+     * @param array $to Array of phone numbers
+     * @param string $message Message content
+     * @return array Response with status, resultCode, and resultData
      */
-    public function sendSMS(string|array $to, string $message, $sendDateTime = null): array
+    public function sendOneSMSToMultiNumber(array $to, string $message): array
     {
-        $this->url .= 'bulk';
+        return $this->sendSMS($to, $message);
+    }
 
-        if ($sendDateTime === null) {
-            $param    = ['messageText' => $message, 'mobiles' => (array) $to, 'lineNumber' => $this->from];
-        } else {
-            $param    = ['messageText' => $message, 'mobiles' => (array) $to, 'lineNumber' => $this->from, 'sendDateTime' => $sendDateTime];
+    /**
+     * Send different SMS to different numbers
+     *
+     * @param array $msNum Array of [number => message] pairs
+     * @return array Response with status, resultCode, and resultData
+     */
+    public function sendMultiSMSToMultiNumber(array $msNum): array
+    {
+        $url = $this->baseUrl . 'bulk';
+        
+        $messages = [];
+        foreach ($msNum as $number => $message) {
+            $messages[] = [
+                'mobile' => $this->normalizePhoneNumbers($number),
+                'messageText' => $message,
+            ];
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($param),
-            CURLOPT_HTTPHEADER => array('X-API-KEY: ' . $this->apikey,  'Content-Type: application/json'),
-        ));
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $params = [
+            'lineNumber' => $this->from,
+            'messages' => $messages,
+        ];
 
-
-        return (array)json_decode($response);
+        return $this->executeJsonRequest($url, $params);
     }
-    public function sendOneSMSToMultiNumber(array $to, string $message, $sendDateTime = null)
-    {
-        $this->url .= 'bulk';
 
-        if ($sendDateTime === null) {
-            $param    = ['messageText' => $message, 'mobiles' => (array) $to, 'lineNumber' => $this->from];
-        } else {
-            $param    = ['messageText' => $message, 'mobiles' => (array) $to, 'lineNumber' => $this->from, 'sendDateTime' => $sendDateTime];
+    /**
+     * Send SMS using predefined pattern/template
+     *
+     * @param string $to Recipient phone number
+     * @param string $message Optional message (not used with patterns)
+     * @param int|string $bodyId Template ID
+     * @param array $parameters Variables to replace in pattern
+     * @return array Response with status, resultCode, and resultData
+     */
+    public function sendSMSByPattern(
+        string $to,
+        string $message,
+        int|string $bodyId,
+        array $parameters
+    ): array {
+        $url = $this->baseUrl . 'verify';
+        
+        // Convert parameters array to SMS.ir format
+        $paramsList = [];
+        foreach ($parameters as $key => $value) {
+            $paramsList[] = [
+                'name' => $key,
+                'value' => $value,
+            ];
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($param),
-            CURLOPT_HTTPHEADER => array('X-API-KEY: ' . $this->apikey,  'Content-Type: application/json'),
-        ));
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $params = [
+            'mobile' => $this->normalizePhoneNumbers($to),
+            'templateId' => $bodyId,
+            'parameters' => $paramsList,
+        ];
 
-
-        return (array)json_decode($response);
+        return $this->executeJsonRequest($url, $params);
     }
-    public function sendMultiSMSToMultiNumber(array $msNum)
+
+    /**
+     * Receive incoming SMS messages
+     *
+     * @return array Received messages
+     */
+    public function receiveSMS(): array
     {
+        $url = $this->baseUrl . 'receive';
+        
+        return $this->executeGetRequest($url);
     }
-    public function sendSMSByPattern(string $to, string $message, int|string $bodyId, array $parameters): array
-    {
 
-        $this->url .= 'verify';
-        $param    = ['mobile' => $to, 'templateId' => $bodyId, 'parameters' => $parameters];
-
-
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->url, 
-            CURLOPT_RETURNTRANSFER => true, 
-            CURLOPT_ENCODING => '', 
-            CURLOPT_MAXREDIRS => 10, 
-            CURLOPT_TIMEOUT => 0, 
-            CURLOPT_FOLLOWLOCATION => true, 
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, 
-            CURLOPT_CUSTOMREQUEST => 'POST', 
-            CURLOPT_POSTFIELDS =>json_encode($param), 
-            CURLOPT_HTTPHEADER => array('Content-Type: application/json','Accept: text/plain','X-API-KEY: ' . $this->apikey),));
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        return (array)json_decode($response);
-    }
-    public function ReciveSMS()
-    {
-    }
+    /**
+     * Get message delivery status
+     *
+     * @param mixed $messageId Message ID
+     * @return string Status string
+     */
     public function getSMSStatus($messageId): string
     {
-        return "";
+        $url = $this->baseUrl . 'status?id=' . urlencode((string)$messageId);
+        
+        $response = $this->executeGetRequest($url);
+        
+        if ($response['status'] && isset($response['resultData']['status'])) {
+            return $response['resultData']['status'];
+        }
+
+        return 'unknown';
     }
+
+    /**
+     * Get account credit/balance
+     *
+     * @return int Remaining credit amount
+     */
     public function getCredit(): int
     {
+        $url = str_replace('/send/', '/credit/', $this->baseUrl);
+        
+        $response = $this->executeGetRequest($url);
+        
+        if ($response['status'] && isset($response['resultData'])) {
+            return (int) $response['resultData'];
+        }
+
         return 0;
     }
-    public function addContact(array $contactInfo)
+
+    /**
+     * Add contact to address book
+     *
+     * @param array $contactInfo Contact information
+     * @return array Response with status, resultCode, and resultData
+     */
+    public function addContact(array $contactInfo): array
     {
+        // SMS.ir contact management requires separate API
+        return [
+            'status' => false,
+            'resultCode' => -1,
+            'resultData' => 'Contact management not implemented. Use SMS.ir dashboard.'
+        ];
+    }
+
+    /**
+     * Execute GET request
+     *
+     * @param string $url Request URL
+     * @return array Response data
+     */
+    private function executeGetRequest(string $url): array
+    {
+        return $this->executeRequest($url, [
+            CURLOPT_HTTPGET => true,
+            CURLOPT_HTTPHEADER => [
+                'X-API-KEY: ' . $this->apiKey,
+                'Accept: application/json'
+            ],
+        ]);
+    }
+
+    /**
+     * Execute JSON POST request
+     *
+     * @param string $url Request URL
+     * @param array $params Request parameters
+     * @return array Response data
+     */
+    private function executeJsonRequest(string $url, array $params): array
+    {
+        $jsonData = json_encode($params, JSON_THROW_ON_ERROR);
+
+        return $this->executeRequest($url, [
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $jsonData,
+            CURLOPT_HTTPHEADER => [
+                'X-API-KEY: ' . $this->apiKey,
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ],
+        ]);
+    }
+
+    /**
+     * Parse API response
+     *
+     * @param string $response Raw response string
+     * @return array Parsed response with status, resultCode, and resultData
+     */
+    protected function parseResponse(string $response): array
+    {
+        $data = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return [
+                'status' => false,
+                'resultCode' => -3,
+                'resultData' => 'Invalid JSON response: ' . json_last_error_msg()
+            ];
+        }
+
+        // SMS.ir returns status in 'status' field
+        if (isset($data['status']) && $data['status'] === 1) {
+            return [
+                'status' => true,
+                'resultCode' => 1,
+                'resultData' => $data['data'] ?? $data['message'] ?? 'Success'
+            ];
+        }
+
+        // Error response
+        return [
+            'status' => false,
+            'resultCode' => $data['status'] ?? -1,
+            'resultData' => $data['message'] ?? $data['error'] ?? 'Unknown error'
+        ];
     }
 }
-
