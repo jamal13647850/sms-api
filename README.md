@@ -29,6 +29,7 @@ This package provides a unified interface for sending SMS messages through diffe
 | Payamito | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MedianaSMS | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Elanak (SOAP) | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Melipayamak** | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## Requirements
 
@@ -54,6 +55,18 @@ cp .env.example .env
 ```
 
 Edit `.env` and fill in your actual API credentials. **Never commit the `.env` file to version control!**
+
+### Environment Variables
+
+Required variables for Melipayamak:
+```bash
+MELIPAYAMAK_USERNAME=your_username
+MELIPAYAMAK_PASSWORD=your_apikey_from_developers_menu
+MELIPAYAMAK_FROM_PRIMARY=5000XXXXXXXX
+MELIPAYAMAK_FROM_SECONDARY=5000XXXXXXXX
+TEST_RECIPIENT_1=0912XXXXXXX
+TEST_RECIPIENT_2=0939XXXXXXX
+```
 
 ## Basic Usage
 
@@ -128,6 +141,33 @@ $parameters = [
     'code' => '1234'
 ];
 $result = $sms->sendSMSByPattern('09120000000', '', 12345, $parameters);
+```
+
+**Real-world example with Melipayamak:**
+```php
+use jamal13647850\smsapi\Melipayamak;
+use jamal13647850\smsapi\SMS;
+
+$gateway = new Melipayamak(
+    '09109568855',
+    'c4150f06-312c-4152-b76b-34ac9c525437',
+    '50004000882270'
+);
+
+$sms = new SMS($gateway);
+
+// Send pattern SMS with Persian parameter
+$result = $sms->sendSMSByPattern(
+    '09124118355',
+    '',
+    '185341',                    // Pattern ID
+    ['product' => 'فرش دستباف'] // Parameter value
+);
+
+if ($result['status']) {
+    echo "Pattern SMS sent! Message ID: " . $result['resultData'];
+    // Output: Pattern SMS sent! Message ID: 5343713930900543701
+}
 ```
 
 ### 4. Check Account Credit
@@ -215,6 +255,37 @@ $gateway = new MedianaSMS(
 );
 ```
 
+### Melipayamak
+
+```php
+use jamal13647850\smsapi\Melipayamak;
+
+$gateway = new Melipayamak(
+    'your_username',           // Username from panel
+    'your_apikey',             // ApiKey from Developers menu (NOT password!)
+    'your_sender_number',      // e.g., 50004000882270
+    'https://rest.payamak-panel.com/api/SendSMS/' // optional URL
+);
+```
+
+**⚠️ Important:** Melipayamak uses **ApiKey** authentication, not your account password. Get the ApiKey from your panel's "توسعه‌دهندگان" (Developers) menu.
+
+#### Melipayamak Pattern SMS Example
+
+```php
+// Send SMS using pattern with parameter
+$result = $gateway->sendSMSByPattern(
+    '09124118355',                    // Recipient
+    '',                               // Empty message (not used with patterns)
+    '185341',                         // Pattern ID from panel
+    ['product' => 'فرش دستباف']      // Pattern parameters
+);
+
+if ($result['status']) {
+    echo "Pattern SMS sent! Message ID: " . $result['resultData'];
+}
+```
+
 ## Switching Between Providers
 
 One of the main advantages of this library is the ability to easily switch between different SMS providers:
@@ -246,12 +317,12 @@ This library uses a clean architecture pattern:
 │   (Facade)  │     │ (Interface)  │     │   (Base Class)  │
 └─────────────┘     └──────────────┘     └─────────────────┘
                                                   │
-            ┌──────────┬──────────┬──────────┬────┴─────┬──────────┐
-            ▼          ▼          ▼          ▼          ▼          ▼
-        ┌──────┐  ┌────────┐ ┌──────────┐ ┌────────┐ ┌────────┐ ┌────────┐
-        │Faraz │  │ SMS.ir │ │FaraPayamak│ │Payamito│ │Mediana │ │ Elanak │
-        │ SMS  │  │        │ │           │ │        │ │  SMS   │ │ (SOAP) │
-        └──────┘  └────────┘ └───────────┘ └────────┘ └────────┘ └────────┘
+    ┌────────┬────────┬──────────┬─────────┬────┴────┬─────────┬──────────┐
+    ▼        ▼        ▼          ▼         ▼         ▼         ▼          ▼
+┌──────┐ ┌───────┐ ┌──────────┐ ┌───────┐ ┌────────┐ ┌────────┐ ┌──────────┐
+│Faraz │ │SMS.ir ││FaraPayamak│ │Payamito│ │Mediana │ │ Elanak ││Melipayamak│
+│ SMS  │ │       ││           │ │        │ │  SMS   │ │ (SOAP) ││   (REST)  │
+└──────┘ └───────┘└───────────┘ └───────┘ └────────┘ └────────┘ └──────────┘
 ```
 
 ## Error Handling
@@ -283,13 +354,35 @@ Common error codes:
 
 ## Testing
 
-Run the test suite (after configuring credentials):
+### Manual Testing
+
+Run the manual test suite (after configuring credentials in `.env`):
 
 ```bash
 php test.php
 ```
 
-The test file includes commented-out examples for all providers. Uncomment the ones you want to test.
+The test file includes examples for all providers.
+
+### Automated Unit Tests
+
+We provide comprehensive PHPUnit tests for all providers:
+
+```bash
+# Install dependencies
+composer install
+
+# Run all tests
+./vendor/bin/phpunit
+
+# Run tests for specific provider
+./vendor/bin/phpunit tests/MelipayamakTest.php
+
+# Run specific test with verbose output
+./vendor/bin/phpunit tests/MelipayamakTest.php --filter testSendSmsByPattern
+```
+
+**Note:** Integration tests require valid API credentials in your `.env` file. See `.env.example` for the required format.
 
 ## Contributing
 
@@ -314,6 +407,8 @@ Contributions are welcome! Here's how you can help:
 - Use environment variables or secure configuration management
 - Keep your API keys private
 - The `.env` file is already in `.gitignore` - don't remove it
+
+For detailed security guidelines, see [SECURITY.md](SECURITY.md).
 
 ## License
 
