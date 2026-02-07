@@ -1,2 +1,17 @@
 smsapi-mixed.txt
 test.php
+
+
+node_modules/
+vendor/
+.DS_Store
+*.log
+.worktrees/
+.env
+assets/dist/
+
+# AI & System
+.claude/
+.opencode/
+.qwen/
+AGENTS.md

@@ -33,16 +33,17 @@ class Elanak implements Gateway {
         $this->fromNum = $fromNum;
     }
 
-    public function sendSMS(string $to,string $message):array{
+    public function sendSMS(string|array $to, string $message): array
+    {
         $this->sendSoap->Username = $this->userName;
         $this->sendSoap->Password = $this->password;
         $this->sendSoap->fromNum  = $this->fromNum;
-        $this->sendSoap->toNum    = [$to];
+        $this->sendSoap->toNum    = (array)$to;
         $this->sendSoap->Content  = $message;
         $this->sendSoap->Type     = $this->messageType;
-        return $this->sendSoap->SendSMS($this->sendSoap->fromNum,$this->sendSoap->toNum,$this->sendSoap->Content,$this->sendSoap->Type,$this->sendSoap->Username,$this->sendSoap->Password);
+        return $this->sendSoap->SendSMS($this->sendSoap->fromNum, $this->sendSoap->toNum, $this->sendSoap->Content, $this->sendSoap->Type, $this->sendSoap->Username, $this->sendSoap->Password);
     }
-    public function sendSMSByPattern(string $to, string $message, int $bodyId,array $parameters): array
+    public function sendSMSByPattern(string $to, string $message, int|string $bodyId, array $parameters): array
     {
         return [];
     }

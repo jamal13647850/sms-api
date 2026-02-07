@@ -58,7 +58,7 @@ class Payamito implements Gateway
         curl_close($curl);
         return (array)json_decode($response);
     }
-    public function sendSMSByPattern(string $to, string $message,int $bodyId,array $parameters=[]): array
+    public function sendSMSByPattern(string $to, string $message, int|string $bodyId, array $parameters): array
     {
        
         $curl = curl_init();

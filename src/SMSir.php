@@ -92,7 +92,7 @@ class SMSir implements Gateway
     public function sendMultiSMSToMultiNumber(array $msNum)
     {
     }
-    public function sendSMSByPattern(string $to, string $message='',int $bodyId,array $parameters): array
+    public function sendSMSByPattern(string $to, string $message, int|string $bodyId, array $parameters): array
     {
 
         $this->url .= 'verify';
