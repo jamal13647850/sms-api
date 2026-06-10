@@ -15,3 +15,5 @@ assets/dist/
 .opencode/
 .qwen/
 AGENTS.md
+
+.agent/
